@@ -3,7 +3,8 @@ import { ChevronDown, Search, UserCircle2, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import ProductCard from "./productCard";
 import axios from "axios";
-import CartDrawer from "../CartDrawer/CartDrawer";
+import CartDrawer from "../../components/cartModal/index";
+import API_URL from "../../Api_path";
 
 export default function Navbar() {
 
@@ -12,6 +13,9 @@ export default function Navbar() {
   const [categories, setCategories] = useState([]);
   const [bluey, setBluey] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [cartItems, setCartItems] = useState([]);
+  console.log("🚀 ~ Navbar ~ cartItems:", cartItems)
+  
 
   // ✅ Fetch categories
   useEffect(() => {
@@ -19,21 +23,25 @@ export default function Navbar() {
       .then(res => setCategories(res.data || []))
       .catch(err => console.error("Error fetching categories:", err));
   }, []);
-
+useEffect(() => {
+  axios.get(`${API_URL}/cart`)
+    .then(res => setCartItems(res.data || []))
+    .catch(err => console.error("Error fetching cart items:", err));
+}, []);
   // ✅ Fetch bluey
   useEffect(() => {
     axios.get("http://localhost:5000/bluey")
       .then(res => setBluey(res.data || []))
       .catch(err => console.error("Error fetching bluey:", err));
   }, []);
-
+ 
   return (
     <>
       <nav className="relative w-full border-b border-[#e5e5e5] bg-[#f8f8f6] z-40">
         <div className="flex w-full items-center justify-between px-8 py-4">
 
           {/* LOGO */}
-          <div 
+          <div
             className="flex items-center cursor-pointer"
             onClick={() => {
               navigate("/");
@@ -67,7 +75,7 @@ export default function Navbar() {
 
                 {/* DROPDOWN */}
                 <div className="absolute left-0 top-full w-full bg-[#f8f8f6] border-t shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-                  
+
                   <div className="px-9 py-10 flex flex-col gap-8">
 
                     {/* HEADER */}
@@ -75,7 +83,7 @@ export default function Navbar() {
                       <h2 className="text-[32px] font-extrabold">{cat.name}</h2>
 
                       {/* ✅ FIX: NAVIGATION BUTTON */}
-                      <button 
+                      <button
                         onClick={() => navigate(`/collections/${cat.name.toLowerCase().replace(" ", "-")}`)}
                         className="rounded-full bg-[#69705b] px-6 py-3 text-white"
                       >
@@ -144,21 +152,36 @@ export default function Navbar() {
             <UserCircle2 size={24} />
 
             {/* ✅ CART CLICK */}
-            <ShoppingCart
-              size={24}
-              onClick={() => setIsCartOpen(true)}
-              className="cursor-pointer"
-            />
+            <div className="relative">
+              <ShoppingCart
+                size={24}
+                onClick={() => setIsCartOpen(true)}
+                className="cursor-pointer"
+              />
+
+              {/* ✅ COUNT BADGE */}
+              {cartItems.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                  {cartItems.length}
+                </span>
+              )}
+            </div>
+
           </div>
 
         </div>
       </nav>
 
       {/* CART DRAWER */}
-      <CartDrawer 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
-      />
+      {isCartOpen && (
+        <CartDrawer
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+          items={cartItems}
+        />
+      )}
+
     </>
+
   );
 }

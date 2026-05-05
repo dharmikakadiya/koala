@@ -9,12 +9,11 @@ import TopOfferBar from "./components/Topoffer/TopOfferBar";
 import Footer from "./components/Footer/Footer";
 import SofaBeds from "./Pages/categoryCollections/levaingRoom/sofa-beds";
 import ProductDetail from "./Pages/ProductDetail";
-import CartProvider from "./context/CartContext";
+// ✅ CartProvider removed from here — it's now in main.jsx
 
 function App() {
   return (
     <>
-    <CartProvider>
       <TopOfferBar />
       <Navbar />
 
@@ -25,15 +24,10 @@ function App() {
         <Route path="/collections/outdoor" element={<Outdoor />} />
         <Route path="/collections/koala-bluey" element={<KoalaBluey />} />
         <Route path="/collections/living-room/sofa-beds" element={<SofaBeds />} />
-
-        {/* ✅ PRODUCT DETAIL */}
         <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/context/cartcontext" element={<ProductDetail />} />
-
       </Routes>
 
       <Footer />
-      </CartProvider>
     </>
   );
 }

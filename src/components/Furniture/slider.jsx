@@ -25,7 +25,7 @@ export default function Furniture() {
     { 
       title: "Koala x Bluey", 
       discount: "Up to 20% off", 
-      imgSrc: blueyImg 
+      imgSrc: blueyImg  
     },
   ];
 

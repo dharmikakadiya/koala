@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useCart } from "../../context/CartContext";
 import { FaStar } from "react-icons/fa";
 import { FaRegStarHalfStroke } from "react-icons/fa6";
 
+export default function CartDrawer({ onClose }) {
+  const { cart, increaseQty, decreaseQty, fetchCart } = useCart();
 
-export default function CartDrawer({ product, onClose }) {
-  const [quantity, setQuantity] = useState(1);
 
-  const increase = () => setQuantity((q) => q + 1);
-  const decrease = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
+
+  // 🔹 Total Price
+  const total = cart.reduce((sum, item) => {
+    return sum + item.price * item.qty;
+  }, 0);
 
   return (
     <div className="fixed inset-0 flex justify-end z-50">
@@ -23,71 +27,95 @@ export default function CartDrawer({ product, onClose }) {
 
         {/* Close */}
         <button
+          type="button"
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-black"
         >
           ✕
         </button>
 
-        {/* TOP CONTENT */}
+        {/* Content */}
         <div className="p-6 flex-1 overflow-y-auto">
-
           <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
 
-          {/* Product */}
-          <div className="flex gap-4 items-start border-b pb-4">
-            <img
-            src={product.selectedColor?.image}
-              className="w-20 h-20 object-contain rounded-lg border"
-            />
-
-            <div className="flex-1">
-
-            <h2 className="text-lg font-semibold text-[#2f2e2a]">
-                {product.title}
+          {cart.length === 0 ? (
+            <div className="text-center mt-10 text-gray-500">
+              <h2 className="text-xl font-semibold">
+                Your Cart is Empty 🛒
               </h2>
-
-              <p className="text-lg text-black flex items-center gap-3">
-                {product.rate}<FaStar className="text-yellow-500" /> <FaStar className="text-yellow-500"/>
-                <FaStar className="text-yellow-500" /><FaRegStarHalfStroke className="text-yellow-500" />
-              </p>
-
-              {/* Price */}
-              <p className="text-gray-800 font-semibold mt-1">
-                ₹{product.price}
-              </p>
-
-              {/* Small subtitle */}
-              <p className="text-xs text-gray-500 mt-1">
-                2.5-Seater • 
-              </p>
-
             </div>
-          </div>
+          ) : (
+            cart.map((item) => (
+              <div
+                key={item.id}
+                className="flex gap-4 items-start border-b pb-4 mb-4"
+              >
+                <img
+                  src={item.selectedColor?.image || item.img}
+                  className="w-20 h-20 object-contain rounded-lg border"
+                />
 
-          {/* Quantity */}
-          <div className="flex justify-center mt-6">
-            <div className="flex items-center gap-6 border px-6 py-2 rounded-full">
-              <button onClick={decrease} className="text-lg">-</button>
-              <span className="text-lg font-semibold">{quantity}</span>
-              <button onClick={increase} className="text-lg">+</button>
-            </div>
-          </div>
+                <div className="flex-1">
+                  <h2 className="text-lg font-semibold">
+                    {item.title}
+                  </h2>
+
+                  {/* Rating (static for now) */}
+                  <p className="flex items-center gap-1 text-yellow-500 text-sm">
+                    <FaStar />
+                    <FaStar />
+                    <FaStar />
+                    <FaRegStarHalfStroke />
+                  </p>
+
+                  <p className="font-semibold mt-1">
+                    ₹{item.price}
+                  </p>
+
+                  {/* Quantity */}
+                  <div className="flex items-center gap-4 mt-2">
+                    <button
+                      type="button"
+                      onClick={() => decreaseQty(item)}
+                      className="px-2 border rounded"
+                    >
+                      -
+                    </button>
+
+                    <span>{item.qty}</span>
+
+                    <button
+                      type="button"
+                      onClick={() => increaseQty(item)}
+                      className="px-2 border rounded"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
 
           {/* Total */}
-          <p className="mt-6 font-bold text-xl text-center">
-            Total: ₹{product.price * quantity}
-          </p>
-
+          {cart.length > 0 && (
+            <p className="mt-6 font-bold text-xl text-center">
+              Total: ₹{total}
+            </p>
+          )}
         </div>
 
         {/* Bottom Button */}
-        <div className="p-6 border-t">
-          <button className="w-full bg-green-700 text-white py-3 rounded-xl text-lg">
-            Proceed to Checkout
-          </button>
-        </div>
-
+        {cart.length > 0 && (
+          <div className="p-6 border-t">
+            <button
+              type="button"
+              className="w-full bg-green-700 text-white py-3 rounded-xl text-lg"
+            >
+              Proceed to Checkout
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
