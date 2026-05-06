@@ -1,121 +1,85 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import axios from "axios";
-import API_URL from "../Api_path";
+
+import React, { createContext, useContext, useState } from "react";
 
 const CartContext = createContext();
-
 export const useCart = () => useContext(CartContext);
 
-export default function CartProvider({ children }) {
+export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
-  
+  const [isCartOpen, setIsCartOpen] = useState(false); // Controls the drawer globally!
 
-  // ✅ FIX 1: useCallback makes fetchCart stable — no infinite loops
-  //not use usecallback
-  const fetchCart = async () => {
-    try {
-      const res = await axios.get(`${API_URL}/cart`);
-      setCart(res.data || []);
-    } catch (err) {
-      console.log("Fetch Cart Error:", err);
-    }
-  };
-
-
-
-  // ✅ FIX 2: Always re-fetch fresh cart from server before checking for existing item
-  //    This prevents stale cart state causing duplicates instead of qty++
-  const addToCart = async (product) => {
-    try {
-      const res = await axios.get(`${API_URL}/cart`);
-      const freshCart = res.data;
-
-      const existingItem = freshCart.find(
-        (item) => item.productId === product.id
+  const addToCart = (product, selectedVariant) => {
+    console.log("product", product);
+    console.log("selectedVariant", selectedVariant);
+    setCart((prev) => {
+      const existing = prev.find(
+        (item) =>
+          item.id === product.id && item.colorHex === selectedVariant.hex,
       );
-
-      if (existingItem) {
-        await axios.patch(`${API_URL}/cart/${existingItem.id}`, {
-          qty: existingItem.qty + 1,
-        });
-      } else {
-        // ✅ FIX 3: Don't spread ...product (avoids id field collision with json-server)
-        await axios.post(`${API_URL}/cart`, {
-          productId: product.id,
-          title: product.title,
-          price: product.price,
-          rate: product.rate,
-          colors: product.colors,
-          selectedColor: product.selectedColor,
-          qty: 1,
-        });
-      }
-
-      setCart((prevCart) => {
-        const itemInCart = prevCart.find(
-          (item) => item.productId === product.id
+      if (existing) {
+        return prev.map((item) =>
+          item.id === product.id && item.colorHex === selectedVariant.hex
+            ? { ...item, quantity: item.quantity + 1 }
+            : item,
         );
-        if (itemInCart) {
-          return prevCart.map((item) =>
-            item.productId === product.id
-              ? { ...item, qty: item.qty + 1 }
-              : item
-          );
-        } else {
-          return [
-            ...prevCart,
-            {
-              id: Date.now(),
-              productId: product.id,
-              title: product.title,
-              price: product.price,
-              rate: product.rate,
-              colors: product.colors,
-              selectedColor: product.selectedColor,
-              qty: 1,
-            },
-          ];
-        }
-      });
-
-    } catch (err) {
-      console.log("Add to Cart Error:", err);
-    }
+      }
+      return [
+        ...prev,
+        {
+          id: product.id,
+          title: product.title,
+          colorName: selectedVariant.colorName,
+          colorHex: selectedVariant.hex,
+          price: selectedVariant.price,
+          image: selectedVariant.images[0],
+          quantity: 1,
+        },
+      ];
+    });
+    setIsCartOpen(true); // Open drawer automatically
   };
 
-  // ✅ Increase Qty
-  const increaseQty = useCallback(async (item) => {
-    try {
-      await axios.patch(`${API_URL}/cart/${item.id}`, {
-        qty: item.qty + 1,
-      });
-      fetchCart();
-    } catch (err) {
-      console.log("Increase Error:", err);
-    }
-  }, [fetchCart]);
+  const removeFromCart = (id, colorHex) => {
+    setCart((prev) =>
+      prev.filter((item) => !(item.id === id && item.colorHex === colorHex)),
+    );
+  };
 
-  // ✅ Decrease Qty
-  const decreaseQty = useCallback(async (item) => {
-    try {
-      if (item.qty > 1) {
-        await axios.patch(`${API_URL}/cart/${item.id}`, {
-          qty: item.qty - 1,
-        });
-      } else {
-        await axios.delete(`${API_URL}/cart/${item.id}`);
-      }
-      fetchCart();
-    } catch (err) {
-      console.log("Decrease Error:", err);
-    }
-  }, [fetchCart]);
+  const updateQuantity = (id, colorHex, amount) => {
+    setCart((prev) =>
+      prev.map((item) => {
+        if (item.id === id && item.colorHex === colorHex) {
+          const newQty = item.quantity + amount;
+          return newQty > 0 ? { ...item, quantity: newQty } : item;
+        }
+        return item;
+      }),
+    );
+  };
+
+  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const cartTotal = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0,
+  );
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, increaseQty, decreaseQty, fetchCart }}
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        cartCount,
+        cartTotal,
+        isCartOpen,
+        setIsCartOpen,
+      }}
+
     >
       {children}
     </CartContext.Provider>
   );
-}
+
+};
+

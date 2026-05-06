@@ -1,186 +1,148 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronDown, Search, UserCircle2, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
-import ProductCard from "./productCard";
+
+import ProductCard from "./productCard"; 
 import axios from "axios";
-import CartDrawer from "../../components/cartModal/index";
-import API_URL from "../../Api_path";
+import { useCart } from "../../context/CartContext";
+import API_URL from "../../../Api_path"; 
+
 
 export default function Navbar() {
 
   const navigate = useNavigate();
 
   const [categories, setCategories] = useState([]);
-  const [bluey, setBluey] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
-  console.log("🚀 ~ Navbar ~ cartItems:", cartItems)
-  
+  const { cartCount, setIsCartOpen } = useCart();
+
 
   // ✅ Fetch categories
   useEffect(() => {
-    axios.get("http://localhost:5000/categories")
-      .then(res => setCategories(res.data || []))
-      .catch(err => console.error("Error fetching categories:", err));
+    axios
+      .get(`${API_URL}/categories`)
+      .then((res) => res.data)
+      .then((data) => setCategories(data))
+      .catch((err) => console.error("Error fetching categories:", err));
   }, []);
-useEffect(() => {
-  axios.get(`${API_URL}/cart`)
-    .then(res => setCartItems(res.data || []))
-    .catch(err => console.error("Error fetching cart items:", err));
-}, []);
-  // ✅ Fetch bluey
-  useEffect(() => {
-    axios.get("http://localhost:5000/bluey")
-      .then(res => setBluey(res.data || []))
-      .catch(err => console.error("Error fetching bluey:", err));
-  }, []);
- 
+  
   return (
-    <>
-      <nav className="relative w-full border-b border-[#e5e5e5] bg-[#f8f8f6] z-40">
+    <> 
+      <nav className="relative w-full height-[48px] border-b border-[#e5e5e5] bg-[#f8f8f6] z-40">
         <div className="flex w-full items-center justify-between px-8 py-4">
+          
+          <div className="flex items-center cursor-pointer">
+            <h1 className="text-[44px] md:text-[50px] leading-none font-extrabold tracking-tight text-[#69705b]">
 
-          {/* LOGO */}
-          <div
-            className="flex items-center cursor-pointer"
-            onClick={() => {
-              navigate("/");
-              window.scrollTo(0, 0);
-            }}
-          >
-            <h1 className="text-[44px] md:text-[50px] font-extrabold text-[#69705b]">
               koala
             </h1>
             <span className="ml-1 mt-5 text-[#69705b] text-xs font-bold">®</span>
           </div>
 
-          {/* MENU */}
-          <div className="hidden lg:flex items-center gap-8 text-[16px] font-semibold text-[#2f2e2a]">
 
-            {/* SALE BUTTON */}
-            <button className="rounded-full bg-[#cbf2d6] px-5 py-2 text-[14px] font-bold hover:bg-[#b5e6c2]">
+          <div className="hidden lg:flex items-center gap-8 xl:gap-10 text-[16px] font-semibold text-[#2f2e2a] h-full">
+            
+            <button className="rounded-full bg-[#cbf2d6] px-5 py-2 text-[14px] font-bold text-[#2f2e2a] hover:bg-[#b5e6c2] transition cursor-pointer">
               Shop Sale
             </button>
 
-            {/* CATEGORY MENU */}
-            {categories.map((cat, index) => (
-              <div key={index} className="group flex items-center h-[80px] -my-[30px]">
-
-                <div className="flex items-center gap-1.5 cursor-pointer">
-                  <span className="group-hover:text-[#69705b] border-b-2 border-transparent group-hover:border-[#69705b]">
+            {categories.map((cat) => (
+              <div key={cat.name} className="group flex items-center h-[80px] -my-[30px] cursor-pointer">
+                
+                <div className="flex items-center gap-1.5">
+                  <span className="group-hover:text-[#69705b] border-b-2 border-transparent group-hover:border-[#69705b] pb-0.5 transition-all">
                     {cat.name}
                   </span>
-                  <ChevronDown size={16} className="group-hover:rotate-180 transition" />
+                  <ChevronDown
+                    size={16}
+                    strokeWidth={2.5}
+                    className="group-hover:rotate-180 transition-transform duration-300 text-[#2f2e2a] mt-0.5"
+                  />
                 </div>
 
-                {/* DROPDOWN */}
-                <div className="absolute left-0 top-full w-full bg-[#f8f8f6] border-t shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-
-                  <div className="px-9 py-10 flex flex-col gap-8">
-
-                    {/* HEADER */}
-                    <div className="flex justify-between">
-                      <h2 className="text-[32px] font-extrabold">{cat.name}</h2>
-
-                      {/* ✅ FIX: NAVIGATION BUTTON */}
-                      <button
-                        onClick={() => navigate(`/collections/${cat.name.toLowerCase().replace(" ", "-")}`)}
-                        className="rounded-full bg-[#69705b] px-6 py-3 text-white"
-                      >
-                        Shop all {cat.name?.toLowerCase()}
+                <div className="absolute left-0 top-full w-full bg-[#f8f8f6] border-t border-[#e5e5e5] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                  <div className="w-full px-9 py-10 flex flex-col gap-8">
+                    
+                    <div className="flex justify-between items-center w-full">
+                      <h2 className="text-[32px] font-extrabold text-[#2f2e2a]">
+                        {cat.name}
+                      </h2>
+                      <button className="rounded-full bg-[#69705b] px-6 py-3 text-[15px] font-bold text-white hover:bg-[#525845] transition">
+                        Shop all {cat.name.toLowerCase()}
                       </button>
                     </div>
 
-                    {/* ITEMS */}
-                    <div className="grid grid-cols-7 gap-4">
+                    <div className="grid grid-cols-7 gap-4 w-full">
                       {cat.items?.map((item) => (
                         <ProductCard
                           key={item.id}
                           title={item.title}
                           img={item.img}
                           discount={item.discount}
-                          navigate={item.navigate}
                         />
                       ))}
                     </div>
-
+                    
                   </div>
                 </div>
               </div>
             ))}
 
-            {/* BLUEY */}
-            <div className="group flex items-center h-[80px] -my-[30px]">
-
-              <div className="flex items-center gap-1.5 cursor-pointer">
-                <img
-                  src="https://au.koala.com/cdn/shop/files/Logo_3.svg"
-                  alt="Bluey Logo"
-                  className="w-[65px]"
-                />
-                <ChevronDown size={16} />
+            <div className="group flex items-center h-[80px] -my-[30px] cursor-pointer">
+              <div className="flex items-center gap-1.5 hover:opacity-80 transition">
+                <span className="text-[#5a6fa8] text-[28px] font-extrabold lowercase">
+                  <img
+                    src="https://au.koala.com/cdn/shop/files/Logo_3.svg?v=1760480610&width=146"
+                    alt="Bluey Logo"
+                    className="inline-block w-[65px] h-auto -mt-1"
+                  />
+                </span>
+                <ChevronDown size={16} strokeWidth={2.5} className="group-hover:rotate-180 transition-transform duration-300 text-[#2f2e2a] mt-0.5" />
               </div>
 
-              <div className="absolute left-0 top-full w-full bg-[#f8f8f6] border-t shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
-
-                <div className="px-9 py-10 flex flex-col gap-8">
-
-                  <div className="flex justify-between">
-                    <h2 className="text-[32px] font-extrabold">Koala x Bluey</h2>
+              <div className="absolute left-0 top-full w-full bg-[#f8f8f6] border-t border-[#e5e5e5] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                <div className="w-full px-9 py-10 flex flex-col gap-8">
+                  <div className="flex justify-between items-center w-full">
+                    <h2 className="text-[32px] font-extrabold text-[#2f2e2a]">Koala x Bluey</h2>
+                    <button className="rounded-full bg-[#69705b] px-6 py-3 text-[15px] font-bold text-white hover:bg-[#525845] transition">
+                      Shop Koala x Bluey
+                    </button>
                   </div>
 
-                  <div className="grid grid-cols-7 gap-4">
-                    {bluey.map((item) => (
-                      <ProductCard
-                        key={item.id}
-                        title={item.title}
-                        img={item.img}
-                        discount={item.discount}
-                      />
-                    ))}
+                  <div className="grid grid-cols-7 gap-4 w-full">
+                    <ProductCard 
+                      title="Playtime Sofa Bed" 
+                      img="https://via.placeholder.com/150" 
+                      discount="20% off" 
+                    />
                   </div>
-
                 </div>
               </div>
             </div>
-
+            
           </div>
 
-          {/* RIGHT ICONS */}
-          <div className="flex items-center gap-6">
-            <Search size={22} />
-            <UserCircle2 size={24} />
-
-            {/* ✅ CART CLICK */}
-            <div className="relative">
-              <ShoppingCart
-                size={24}
-                onClick={() => setIsCartOpen(true)}
-                className="cursor-pointer"
-              />
-
-              {/* ✅ COUNT BADGE */}
-              {cartItems.length > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                  {cartItems.length}
+          <div className="flex items-center gap-6 text-[#2f2e2a]">
+            <button className="hover:scale-110 transition cursor-pointer">
+              <Search size={22} strokeWidth={2} />
+            </button>
+            <button className="hover:scale-110 transition cursor-pointer">
+              <UserCircle2 size={24} strokeWidth={2} />
+            </button>
+            <button 
+              onClick={() => setIsCartOpen(true)} 
+              className="relative hover:scale-110 transition cursor-pointer"
+            >
+              <ShoppingCart size={24} strokeWidth={2} />
+              {cartCount > 0 && (
+                <span className="absolute -top-1.5 -right-2 bg-[#6e7464] text-white text-[11px] font-bold w-5 h-5 flex items-center justify-center rounded-full shadow-sm">
+                  {cartCount}
                 </span>
               )}
-            </div>
-
+            </button>
           </div>
 
         </div>
       </nav>
-
-      {/* CART DRAWER */}
-      {isCartOpen && (
-        <CartDrawer
-          isOpen={isCartOpen}
-          onClose={() => setIsCartOpen(false)}
-          items={cartItems}
-        />
-      )}
-
     </>
 
   );
