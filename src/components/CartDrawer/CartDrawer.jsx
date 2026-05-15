@@ -17,8 +17,7 @@ export default function CartDrawer() {
 
   const getImageUrl = (imgString) => {
     if (!imgString) return '';
-    if (imgString.startsWith('http')) return imgString;
-
+    if (imgString.startsWith('http') || imgString.startsWith('data:') || imgString.startsWith('blob:')) return imgString;
     return new URL(`../../assets/${imgString}`, import.meta.url).href;
   };
 
@@ -79,7 +78,7 @@ export default function CartDrawer() {
                       <span className="px-2 text-[13px] font-bold w-6 text-center">{item.quantity}</span>
                       <button onClick={() => updateQuantity(item.id, item.colorHex, 1)} className="px-2 py-1 hover:bg-gray-50"><Plus size={12}/></button>
                     </div>
-                    <span className="font-bold text-[#2f2e2a] text-[15px]">${(item.price * item.quantity).toLocaleString()}</span>
+                    <span className="font-bold text-[#2f2e2a] text-[15px]">${(Number(item.price) * Number(item.quantity)).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -92,7 +91,7 @@ export default function CartDrawer() {
           <div className="p-6 border-t border-[#e5e5e5] bg-white">
             <div className="flex justify-between items-center mb-4">
               <span className="text-[16px] font-bold text-[#2f2e2a]">Subtotal</span>
-              <span className="text-[20px] font-bold text-[#2f2e2a]">${cartTotal.toLocaleString()}</span>
+              <span className="text-[20px] font-bold text-[#2f2e2a]">${Number(cartTotal).toLocaleString()}</span>
             </div>
             <button className="w-full bg-[#6e7464] text-white font-bold text-[16px] py-4 rounded-full hover:bg-[#5a5f52] transition-colors shadow-md">
               Checkout safely

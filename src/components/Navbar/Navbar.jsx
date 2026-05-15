@@ -30,14 +30,25 @@ export default function Navbar() {
       <nav className="relative w-full height-[48px] border-b border-[#e5e5e5] bg-[#f8f8f6] z-40">
         <div className="flex w-full items-center justify-between px-8 py-4">
           
-          <div className="flex items-center cursor-pointer">
+          {/* <div className="flex items-center cursor-pointer">
             <h1 className="text-[44px] md:text-[50px] leading-none font-extrabold tracking-tight text-[#69705b]">
 
               koala
             </h1>
             <span className="ml-1 mt-5 text-[#69705b] text-xs font-bold">®</span>
-          </div>
+          </div> */}
+<div
+  onClick={() => navigate("/")}
+  className="flex items-center cursor-pointer"
+>
+  <h1 className="text-[44px] md:text-[50px] leading-none font-extrabold tracking-tight text-[#69705b]">
+    koala
+  </h1>
 
+  <span className="ml-1 mt-5 text-[#69705b] text-xs font-bold">
+    ®
+  </span>
+</div>
 
           <div className="hidden lg:flex items-center gap-8 xl:gap-10 text-[16px] font-semibold text-[#2f2e2a] h-full">
             

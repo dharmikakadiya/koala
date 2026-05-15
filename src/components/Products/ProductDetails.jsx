@@ -27,12 +27,29 @@ export default function ProductDetails() {
 
   const getImageUrl = (imgString) => {
     if (!imgString) return '';
+    if (imgString.startsWith('http') || imgString.startsWith('data:') || imgString.startsWith('blob:')) return imgString;
     return new URL(`../../assets/${imgString}`, import.meta.url).href;
   };
 
   if (!product) return <div className="min-h-screen bg-[#f8f8f6] pt-20 text-center font-bold">Loading product...</div>;
 
-  const variant = product.variants[selectedVariantIdx];
+  // Admin ke products mein variants nahi hote — normalize karo
+  const normalizedProduct = product.variants && product.variants.length > 0
+    ? product
+    : {
+        ...product,
+        subtitle: product.subCategoryName || product.category || "",
+        rating: product.rating || 0,
+        reviewCount: product.reviewCount || 0,
+        variants: [{
+          colorName: product.color || "Default",
+          hex: "#cccccc",
+          price: product.price || 0,
+          images: [product.img || ""],
+        }],
+      };
+
+  const variant = normalizedProduct.variants[selectedVariantIdx];
 
   return (
     <div className="w-full min-h-screen bg-[#f8f8f6]">
@@ -55,7 +72,7 @@ export default function ProductDetails() {
                   {product.badge}
                 </div>
               )}
-              <img src={getImageUrl(variant.images[0])} alt={product.title} className="w-full h-full object-cover" />
+              <img src={getImageUrl(variant?.images?.[0] || "")} alt={product.title} className="w-full h-full object-cover" />
             </div>
           </div>
 
@@ -81,14 +98,14 @@ export default function ProductDetails() {
               Sign up to get 10% off ›
             </div>
 
-            {product.sizes && product.sizes.length > 0 && (
+            {normalizedProduct.sizes && normalizedProduct.sizes.length > 0 && (
               <div className="flex flex-col gap-3 mb-8">
                 <div className="flex justify-between items-end">
                   <span className="text-[14px] font-bold text-[#2f2e2a]">Size: <span className="font-normal">{selectedSize}</span></span>
                   <span className="text-[13px] underline text-gray-500 cursor-pointer">Dimensions ⓘ</span>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
-                  {product.sizes.map((size, idx) => (
+                  {normalizedProduct.sizes.map((size, idx) => (
                     <button
                       key={idx}
                       onClick={() => setSelectedSize(size)}
@@ -104,7 +121,7 @@ export default function ProductDetails() {
             <div className="flex flex-col gap-3 mb-8">
               <span className="text-[14px] font-bold text-[#2f2e2a]">Colour: <span className="font-normal">{variant.colorName}</span></span>
               <div className="flex items-center gap-3 flex-wrap">
-                {product.variants.map((v, idx) => (
+                {normalizedProduct.variants.map((v, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedVariantIdx(idx)}
@@ -117,7 +134,7 @@ export default function ProductDetails() {
             </div>
 
             <button 
-              onClick={() => addToCart(product, variant)}
+              onClick={() => addToCart(normalizedProduct, variant)}
               className="w-full bg-[#6a735c] text-white font-bold text-[16px] py-4 rounded-full hover:bg-[#58614a] transition-colors shadow-md flex items-center justify-center gap-2"
             >
               Add to cart • ${variant?.price.toLocaleString()}

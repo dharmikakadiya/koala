@@ -37,8 +37,29 @@ export default function LivingRoom() {
   useEffect(() => {
     axios.get(`${API_URL}/livingRoom`).then((res) => setHeroData(res.data));
     axios.get(`${API_URL}/products`).then((res) => {
-      // Show all products that belong to categories 1-10 (Living Room)
-      const livingRoomProducts = res.data.filter(p => p.categoryId >= 1 && p.categoryId <= 10);
+      const livingRoomProducts = res.data
+        .filter(p => 
+          (p.categoryId >= 1 && p.categoryId <= 10) ||
+          (p.mainCategory && p.mainCategory.toLowerCase().includes("living"))
+        )
+        .map(p => {
+          // Agar variants nahi hain (admin ka product) toh normalize karo
+          if (!p.variants || p.variants.length === 0) {
+            return {
+              ...p,
+              subtitle: p.subCategoryName || p.category || "",
+              rating: p.rating || 0,
+              reviewCount: p.reviewCount || 0,
+              variants: [{
+                colorName: p.color || "Default",
+                hex: "#cccccc",
+                price: p.price || 0,
+                images: [p.img || ""],
+              }],
+            };
+          }
+          return p;
+        });
       setProducts(livingRoomProducts);
     });
   }, []);

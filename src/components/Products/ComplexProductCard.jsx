@@ -9,11 +9,15 @@ export default function ComplexProductCard({ product }) {
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
 
+  // Safety check — agar variants nahi hain toh crash na ho
+  if (!product.variants || product.variants.length === 0) return null;
+
   const variant = product.variants[selectedVariantIdx];
   const images = variant?.images || [];
 
   const getImageUrl = (imgString) => {
     if (!imgString) return '';
+    if (imgString.startsWith('http') || imgString.startsWith('data:')) return imgString;
     return new URL(`../../assets/${imgString}`, import.meta.url).href;
   };
 

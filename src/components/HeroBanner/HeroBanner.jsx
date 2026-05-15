@@ -12,10 +12,10 @@ export default function HeroBanner() {
   const [bannerData, setBannerData] = useState(null);
   const [features, setFeatures] = useState([]);
   const [modularBannerData, setModularBannerData] = useState(null);
-  
+
   // State for the Impact section
   const [impacts, setImpacts] = useState([]);
-  
+
   // Controls for First Video
   const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef(null);
@@ -88,12 +88,12 @@ export default function HeroBanner() {
 
   return (
     <div className="w-full flex flex-col bg-[#f8f8f6]">
-      
+
       {/* --- TOP: ORIGINAL HERO IMAGE --- */}
       <section className="w-full h-[600px] md:h-[600px] bg-gray-200">
-        <img 
-          src={bannerImg} 
-          alt="hero" 
+        <img
+          src={bannerImg}
+          alt="hero"
           className="w-full h-full object-cover"
         />
       </section>
@@ -103,20 +103,15 @@ export default function HeroBanner() {
         <h2 className="text-[32px] md:text-[36px] font-extrabold text-[#2f2e2a] mb-8">
           Furniture loved by millions of homes around the world
         </h2>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {featured.map((item) => (
-            <div 
-              key={item.id} 
+            <div
+              key={item.id}
               className="flex flex-col gap-4 cursor-pointer group"
               // 3. ADD ONCLICK EVENT HERE
-              onClick={() => {
-                if (item.title.toLowerCase() === 'living room') {
-                  navigate('/living-room');
-                }
-                // You can add more routes here later, e.g.:
-                // else if (item.title.toLowerCase() === 'bedroom') { navigate('/bedroom'); }
-              }}
+              onClick={() => navigate(`/${item.navigate}`)}
+
             >
               <div className="relative w-full aspect-[4/3] rounded-2xl overflow-hidden bg-[#e5e5e5]">
                 {item.discount && (
@@ -124,10 +119,10 @@ export default function HeroBanner() {
                     {item.discount}
                   </div>
                 )}
-                <img 
-                  src={getImageUrl(item.img)} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                <img
+                  src={getImageUrl(item.img)||item.image}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
               <h3 className="text-[18px] font-medium text-[#2f2e2a]">
@@ -141,13 +136,13 @@ export default function HeroBanner() {
       {/* --- MIDDLE 2: FIRST VIDEO BANNER --- */}
       {bannerData && (
         <section className="relative w-full h-[500px] md:h-[650px] bg-gray-200 overflow-hidden">
-          <video 
+          <video
             ref={videoRef}
             src={getImageUrl(bannerData.videoUrl)}
             poster={getImageUrl(bannerData.posterUrl)}
-            autoPlay 
-            loop 
-            muted 
+            autoPlay
+            loop
+            muted
             playsInline
             className="absolute inset-0 w-full h-full object-cover"
           >
@@ -166,14 +161,14 @@ export default function HeroBanner() {
             </button>
           </div>
           <div className="absolute bottom-6 right-6 flex items-center gap-4">
-            <button 
+            <button
               onClick={togglePlayPause}
               className="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center hover:bg-white/20 transition text-white"
             >
               {isPlaying ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
               ) : (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="ml-1"><path d="M8 5v14l11-7z"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="ml-1"><path d="M8 5v14l11-7z" /></svg>
               )}
             </button>
           </div>
@@ -185,15 +180,15 @@ export default function HeroBanner() {
         <h2 className="text-[28px] md:text-[36px] font-bold text-[#2f2e2a] mb-8">
           Forward-thinking designs, rewriting the rules for modern homes
         </h2>
-        
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           {features.map((item) => (
             <div key={item.id} className="flex flex-col gap-3 group">
               <div className="w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#e5e5e5]">
-                <img 
-                  src={getImageUrl(item.img)} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                <img
+                  src={getImageUrl(item.img)}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
               <div className="flex flex-col">
@@ -212,13 +207,13 @@ export default function HeroBanner() {
       {/* --- MIDDLE 4: SECOND VIDEO BANNER --- */}
       {modularBannerData && (
         <section className="relative w-full h-[500px] md:h-[650px] bg-gray-200 overflow-hidden">
-          <video 
+          <video
             ref={modularVideoRef}
             src={getImageUrl(modularBannerData.videoUrl)}
             poster={getImageUrl(modularBannerData.posterUrl)}
-            autoPlay 
-            loop 
-            muted 
+            autoPlay
+            loop
+            muted
             playsInline
             className="absolute inset-0 w-full h-full object-cover"
           >
@@ -237,14 +232,14 @@ export default function HeroBanner() {
             </button>
           </div>
           <div className="absolute bottom-6 right-6 flex items-center gap-4">
-            <button 
+            <button
               onClick={toggleModularPlayPause}
               className="w-10 h-10 border-2 border-white rounded-full flex items-center justify-center hover:bg-white/20 transition text-white"
             >
               {isModularPlaying ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
               ) : (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="ml-1"><path d="M8 5v14l11-7z"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="ml-1"><path d="M8 5v14l11-7z" /></svg>
               )}
             </button>
           </div>
@@ -253,7 +248,7 @@ export default function HeroBanner() {
 
       {/* --- BOTTOM: NEW IMPACT / WHY KOALA SECTION --- */}
       <section className="mx-auto w-full max-w-[1500px] px-9 py-16">
-        
+
         {/* Section Header */}
         <div className="mb-10">
           <span className="text-[#2f2e2a] text-[14px] md:text-[16px] mb-2 block">
@@ -263,21 +258,21 @@ export default function HeroBanner() {
             For a cosy home, and a healthy planet.
           </h2>
         </div>
-        
+
         {/* 3-Column Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {impacts.map((item) => (
             <div key={item.id} className="flex flex-col gap-4 group cursor-pointer">
-              
+
               {/* Image Container */}
               <div className="w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#e5e5e5]">
-                <img 
-                  src={getImageUrl(item.img)} 
-                  alt={item.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                <img
+                  src={getImageUrl(item.img)}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               </div>
-              
+
               {/* Text Content */}
               <div className="flex flex-col pr-4">
                 <h3 className="text-[16px] font-bold text-[#2f2e2a] mb-1">
@@ -287,11 +282,11 @@ export default function HeroBanner() {
                   {item.description}
                 </p>
               </div>
-              
+
             </div>
           ))}
         </div>
-        
+
       </section>
 
 
